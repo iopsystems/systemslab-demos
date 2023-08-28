@@ -36,18 +36,20 @@ local rpc_perf_config = {
     },
 };
 
-function(connections='1000', klen='32', vlen='128', rw_ratio='8')
+function(connections='1000', klen='32', vlen='1024', rw_ratio='8', server_sku='c3')
     local args = {
         connections: connections,
         klen: klen,
         vlen: vlen,
         rw_ratio: rw_ratio,
+        server_sku: server_sku,
     };
     local
         connections = std.parseInt(args.connections),
         klen = std.parseInt(args.klen),
         vlen = std.parseInt(args.vlen),
         rw_ratio = std.parseJson(args.rw_ratio),
+        redis_sku = server_sku + '-standard-4',
 
         weights = if rw_ratio >= 1 then
             [std.round(10 * rw_ratio), 10]
@@ -116,11 +118,11 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8')
 
                 host: {
                     // Only run on the c2d-16 instances
-                    tags: ['c2d'],
+                    tags: ['c2-standard-16'],
                 },
 
                 steps: [
-                    systemslab.bash('sudo ethtool -L ens4 combined 2'),
+                    // systemslab.bash('sudo ethtool -L ens4 combined 2'),
 
                     // Write out the toml configs for rpc-perf
                     systemslab.write_file('warmup.toml', warmup),
@@ -166,10 +168,11 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8')
 
             redis: {
                 host: {
-                    tags: ['c3'],
+                    // Only run on the c3-4 instances
+                    tags: [redis_sku],
                 },
                 steps: [
-                    systemslab.bash('sudo ethtool -L ens3 tx 2 rx 2'),
+                    // systemslab.bash('sudo ethtool -L ens3 tx 2 rx 2'),
 
                     systemslab.write_file('redis.conf', importstr 'redis.conf'),
 
