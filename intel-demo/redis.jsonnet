@@ -122,7 +122,7 @@ function(connections='1000', klen='32', vlen='1024', rw_ratio='8', server_sku='c
                 },
 
                 steps: [
-                    // systemslab.bash('sudo ethtool -L ens4 combined 2'),
+                    systemslab.bash('sudo ethtool -L ens4 tx 1 rx 1'),
 
                     // Write out the toml configs for rpc-perf
                     systemslab.write_file('warmup.toml', warmup),
@@ -139,14 +139,14 @@ function(connections='1000', klen='32', vlen='1024', rw_ratio='8', server_sku='c
                     systemslab.barrier('cache-start'),
 
                     // Now, warm up the cache
-                    systemslab.bash('taskset -ac 2-15 rpc-perf warmup.toml'),
+                    systemslab.bash('taskset -ac 1-15 rpc-perf warmup.toml'),
 
                     // Wait 60s for the rest of the stack to clean up any left over connections
                     systemslab.bash('sleep 60'),
 
                     // Now run the real benchmark
                     systemslab.bash(|||
-                        taskset -ac 2-15 rpc-perf loadgen.toml &
+                        taskset -ac 1-15 rpc-perf loadgen.toml &
 
                         sleep 60
 
@@ -168,11 +168,10 @@ function(connections='1000', klen='32', vlen='1024', rw_ratio='8', server_sku='c
 
             redis: {
                 host: {
-                    // Only run on the c3-4 instances
                     tags: [redis_sku],
                 },
                 steps: [
-                    // systemslab.bash('sudo ethtool -L ens3 tx 2 rx 2'),
+                    systemslab.bash("sudo ethtool -L `ip route | grep default | awk '{print $5}'` tx 1 rx 1 || sudo ethtool -L `ip route | grep default | awk '{print $5}'` combined 1"),
 
                     systemslab.write_file('redis.conf', importstr 'redis.conf'),
 
