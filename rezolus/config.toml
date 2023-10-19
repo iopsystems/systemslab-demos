@@ -1,0 +1,4 @@
+[general]
+# Sets the socket address for Rezolus to listen on. This is a required parameter
+listen = "0.0.0.0:4242"
+[samplers]
