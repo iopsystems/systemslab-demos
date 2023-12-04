@@ -16,8 +16,8 @@ local rpc_perf_config = {
         log_max_size: 1073741824,
     },
     target: {
-        // We don't know the address of the redis job until its actually
-        // running. This will be replaced by sed later on.
+        // We don't know the address of the server until it's actually running.
+        // This will be replaced by sed later on.
         endpoints: ['SERVER_ADDR:12321'],
     },
     pubsub: {
