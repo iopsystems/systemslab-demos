@@ -2,9 +2,9 @@ local systemslab = import 'systemslab.libsonnet';
 
 local rpc_perf_config = {
     general: {
-        protocol: 'ping',
+        protocol: 'blabber',
         interval: 1,
-        duration: 600,
+        duration: 60,
         ratelimit: 1000,
         json_output: 'output.json',
         admin: '0.0.0.0:9090',
@@ -20,19 +20,19 @@ local rpc_perf_config = {
         // running. This will be replaced by sed later on.
         endpoints: ['SERVER_ADDR:12321'],
     },
-    client: {
-        threads: 8,
-        poolsize: error 'a poolsize must be specified',
+    pubsub: {
         connect_timeout: 10000,
-        request_timeout: 1000,
-        read_buffer_size: 8192,
-        write_buffer_size: 8192,
+        publish_timeout: 1000,
+        publisher_threads: 1,
+        subscriber_threads: 2,
+        publisher_poolsize: 1,
+        publisher_concurrency: 1,
     },
     workload: {
         threads: 1,
-        ratelimit: 1000,
+        ratelimit: 1,
         strict_ratelimit: true,
-        keyspace: error 'a keyspace must be specified',
+        topics: error 'a keyspace must be specified',
     },
 };
 
@@ -64,23 +64,21 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
     };
     local
         connections = std.parseInt(args.connections),
-        keyspace = {
+        topics = {
             weight: 1,
-            commands: [
-                { verb: 'ping', weight: 1 },
-            ],
+            topics: 1,
+            topic_len: 1,
+            message_len: 64,
+            subscriber_poolsize: connections,
         },
         loadgen_config = rpc_perf_config {
-            client+: {
-                poolsize: connections,
-            },
             workload+: {
-                keyspace: [keyspace],
+                topics: [topics],
             },
         };
 
     {
-        name: 'server_c%(connections)i' % {
+        name: 'blabber_c%(connections)i' % {
             connections: connections,
         },
         jobs: {
@@ -150,7 +148,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                         |||
                             ulimit -n 100000
                             ulimit -a
-                            taskset -ac 0-7 /usr/local/bin/pelikan_pingserver_rs server.toml
+                            taskset -ac 0-7 /usr/local/bin/blabber
                         |||,
                         background=true
                     ),
