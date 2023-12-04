@@ -4,8 +4,8 @@ local rpc_perf_config = {
     general: {
         protocol: 'blabber',
         interval: 1,
-        duration: 60,
-        ratelimit: 1000,
+        duration: 300,
+        ratelimit: 1,
         json_output: 'output.json',
         admin: '0.0.0.0:9090',
         initial_seed: '0',
@@ -112,16 +112,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                     systemslab.bash(|||
                         ulimit -n 100000
                         ulimit -a
-                        taskset -ac 0-7 /usr/local/bin/rpc-perf loadgen.toml &
-
-                        sleep 60
-
-                        for qps in $(seq 20000 20000 400000); do
-                            curl -s -X PUT http://localhost:9090/ratelimit/$qps
-                            sleep 30
-                        done
-
-                        wait
+                        taskset -ac 0-7 /usr/local/bin/rpc-perf loadgen.toml
                     |||),
 
                     // Indicate to the server that we're done and it can exit
