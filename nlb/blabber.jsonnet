@@ -139,7 +139,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                         |||
                             ulimit -n 100000
                             ulimit -a
-                            taskset -ac 0-7 /usr/local/bin/blabber
+                            taskset -ac 0-7 /usr/local/bin/blabber --threads 2 --publish-rate 1
                         |||,
                         background=true
                     ),
