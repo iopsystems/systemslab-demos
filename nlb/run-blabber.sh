@@ -61,7 +61,7 @@ CONNECTIONS=(
 for conns in "${CONNECTIONS[@]}"; do
     $SYSTEMSLAB submit                                  \
         --output-format short                           \
-        --name "blabber_S1_C5_c${conns}_md5_direct_bigserver_fo7" \
+        --name "blabber_S1_C5_c${conns}_md10_nlb" \
         --param "connections=$conns"                    \
         blabber-fan-out.jsonnet
 done
