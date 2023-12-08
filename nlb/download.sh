@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -v
 
 set -euo pipefail
 
@@ -16,8 +16,12 @@ mkdir -p "$OUTDIR"
 
 for expt in $EXPERIMENTS; do
     name=$(curl -s "$SYSTEMSLAB_URL/api/v1/experiment/$expt" | jq -r .name)
-    artifact=$(systemslab artifact list --experiment "$expt" | grep output.json | cut -d ' ' -f 1)
+    C=0
+    for artifact in `systemslab artifact list --experiment "$expt" | grep logs.json | cut -d ' ' -f 1`; do
 
-    echo "Downloading $name.json"
-    systemslab artifact download --artifact "$artifact" -o "$OUTDIR/$name.json"
+        echo "Downloading $artifact $name.json"
+        systemslab artifact download --artifact "$artifact" -o "$OUTDIR/$name-$C.json"
+
+        ((C++))
+    done
 done

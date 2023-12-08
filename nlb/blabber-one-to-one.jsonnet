@@ -3,8 +3,8 @@ local systemslab = import 'systemslab.libsonnet';
 local rpc_perf_config = {
     general: {
         protocol: 'blabber',
-        interval: 1,
-        duration: 300,
+        interval: 60,
+        duration: 180,
         ratelimit: 1,
         json_output: 'output.json',
         admin: '0.0.0.0:9090',
@@ -18,13 +18,15 @@ local rpc_perf_config = {
     target: {
         // We don't know the address of the server until it's actually running.
         // This will be replaced by sed later on.
+        
+        // endpoints: ['nlb-0-44b74801d0068ea4.elb.us-west-2.amazonaws.com:12321'],
         endpoints: ['SERVER_ADDR:12321'],
     },
     pubsub: {
         connect_timeout: 10000,
         publish_timeout: 1000,
         publisher_threads: 1,
-        subscriber_threads: 2,
+        subscriber_threads: 8,
         publisher_poolsize: 1,
         publisher_concurrency: 1,
     },
@@ -33,24 +35,6 @@ local rpc_perf_config = {
         ratelimit: 1,
         strict_ratelimit: true,
         topics: error 'a keyspace must be specified',
-    },
-};
-
-local server_config = {
-    admin: {
-        host: '127.0.0.1',
-        port: '9999',
-    },
-    server: {
-        host: '0.0.0.0',
-        port: '12321',
-        timeout: 100,
-        nevent: 1024,
-    },
-    worker: {
-        timeout: 100,
-        nevent: 1024,
-        threads: 8,
     },
 };
 
@@ -87,7 +71,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
 
                 host: {
                     // Only run on the c2d-16 instances
-                    tags: ['standard-2'],
+                    tags: ['c6g.2xlarge'],
                 },
 
                 steps: [
@@ -112,7 +96,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                     systemslab.bash(|||
                         ulimit -n 100000
                         ulimit -a
-                        taskset -ac 0-7 /usr/local/bin/rpc-perf loadgen.toml
+                        /usr/local/bin/rpc-perf loadgen.toml
                     |||),
 
                     // Indicate to the server that we're done and it can exit
@@ -124,28 +108,24 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
             },
 
             server: {
-                local server = std.manifestTomlEx(server_config, ''),
-
                 host: {
-                    tags: ['standard-2'],
+                    tags: ['c6gn.2xlarge'],
                 },
                 steps: [
                     # systemslab.bash('sudo ethtool -L ens3 tx 2 rx 2'),
 
-                    // Write out the toml configs for the server
-                    systemslab.write_file('server.toml', server),
-
                     systemslab.bash(
                         |||
+                            export RUST_BACKTRACE=full
                             ulimit -n 100000
                             ulimit -a
-                            taskset -ac 0-7 /usr/local/bin/blabber --threads 2 --publish-rate 1
+                            /usr/local/bin/blabber --threads 8 --publish-rate 1 --fanout 7
                         |||,
                         background=true
                     ),
 
                     // Give the server instance a second to start up
-                    systemslab.bash('sleep 1'),
+                    systemslab.bash('sleep 5'),
 
                     // Hand things off to the client job
                     systemslab.barrier('server-start'),
