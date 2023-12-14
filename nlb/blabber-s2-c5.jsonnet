@@ -19,8 +19,8 @@ local rpc_perf_config = {
         // We don't know the address of the server until it's actually running.
         // This will be replaced by sed later on.
         
-        // endpoints: ['nlb-0-44b74801d0068ea4.elb.us-west-2.amazonaws.com:12321'],
-        endpoints: ['SERVER_1_ADDR:12321','SERVER_2_ADDR:12321','SERVER_3_ADDR:12321','SERVER_4_ADDR:12321','SERVER_5_ADDR:12321'],
+        # endpoints: ['nlb-0-44b74801d0068ea4.elb.us-west-2.amazonaws.com:12321'],
+        endpoints: ['SERVER_1_ADDR:12321','SERVER_2_ADDR:12321'],
     },
     pubsub: {
         connect_timeout: 10000,
@@ -83,6 +83,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                     systemslab.bash(
                         |||
                             sed -ie "s/SERVER_1_ADDR/$SERVER_1_ADDR/g" loadgen.toml
+                            sed -ie "s/SERVER_2_ADDR/$SERVER_2_ADDR/g" loadgen.toml
                         |||
                     ),
 
@@ -124,6 +125,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                     systemslab.bash(
                         |||
                             sed -ie "s/SERVER_1_ADDR/$SERVER_1_ADDR/g" loadgen.toml
+                            sed -ie "s/SERVER_2_ADDR/$SERVER_2_ADDR/g" loadgen.toml
                         |||
                     ),
 
@@ -165,6 +167,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                     systemslab.bash(
                         |||
                             sed -ie "s/SERVER_1_ADDR/$SERVER_1_ADDR/g" loadgen.toml
+                            sed -ie "s/SERVER_2_ADDR/$SERVER_2_ADDR/g" loadgen.toml
                         |||
                     ),
 
@@ -206,6 +209,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                     systemslab.bash(
                         |||
                             sed -ie "s/SERVER_1_ADDR/$SERVER_1_ADDR/g" loadgen.toml
+                            sed -ie "s/SERVER_2_ADDR/$SERVER_2_ADDR/g" loadgen.toml
                         |||
                     ),
 
@@ -247,6 +251,7 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                     systemslab.bash(
                         |||
                             sed -ie "s/SERVER_1_ADDR/$SERVER_1_ADDR/g" loadgen.toml
+                            sed -ie "s/SERVER_2_ADDR/$SERVER_2_ADDR/g" loadgen.toml
                         |||
                     ),
 
@@ -282,7 +287,34 @@ function(connections='1000', klen='32', vlen='128', rw_ratio='8', threads='6')
                             export RUST_BACKTRACE=full
                             ulimit -n 200000
                             ulimit -a
-                            /usr/local/bin/blabber --threads 8 --publish-rate 1 --fanout 7 --max-delay-us 5000
+                            /usr/local/bin/blabber --threads 8 --publish-rate 1 --fanout 7 --max-delay-us 10000
+                        |||,
+                        background=true
+                    ),
+
+                    // Give the server instance a second to start up
+                    systemslab.bash('sleep 5'),
+
+                    // Hand things off to the client job
+                    systemslab.barrier('server-start'),
+
+                    // Wait for the client job to signal completion
+                    systemslab.barrier('server-finish'),
+                ],
+            },
+            server_2: {
+                host: {
+                    tags: ['c6g.2xlarge'],
+                },
+                steps: [
+                    # systemslab.bash('sudo ethtool -L ens3 tx 2 rx 2'),
+
+                    systemslab.bash(
+                        |||
+                            export RUST_BACKTRACE=full
+                            ulimit -n 200000
+                            ulimit -a
+                            /usr/local/bin/blabber --threads 8 --publish-rate 1 --fanout 7 --max-delay-us 10000
                         |||,
                         background=true
                     ),

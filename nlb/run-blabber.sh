@@ -8,60 +8,74 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd "$SCRIPT_DIR"
 
-CONNECTIONS=(
-    200
-    400
-    600
-    800
+SUBSCRIBERS=(
     1000
-    1200
-    1400
-    1600
-    1800
     2000
-    4000
-    6000
-    8000
+    5000
     10000
-    12000
-    14000
-    16000
-    18000
     20000
+    50000
+    100000
 )
 
-# CONNECTIONS=(
-#     500
-#     1000
-#     1500
-#     2000
-#     2500
-#     3000
-#     3500
-#     4000
-#     4500
-#     5000
-#     10000
-# )
+MAX_DELAY=(
+    0
+    1000
+    2000
+    5000
+    # 10000
+    # 20000
+    # 50000
+    # 100000
+)
 
-# CONNECTIONS=(
-#     1000
-#     2000
-#     3000
-#     4000
-#     5000
-#     6000
-#     7000
-#     8000
-#     9000
-#     10000
-#     20000
-# )
+PUBLISH_RATE=(
+    1
+    2
+    5
+    10
+    20
+    50
+    100
+    # 200
+    # 500
+    # 1000
+)
 
-for conns in "${CONNECTIONS[@]}"; do
-    $SYSTEMSLAB submit                                  \
-        --output-format short                           \
-        --name "blabber_S1_C5_c${conns}_md10_nlb" \
-        --param "connections=$conns"                    \
-        blabber-fan-out.jsonnet
+FANOUT=(
+    7
+)
+
+MESSAGE_LEN=(
+    32
+)
+
+for subscribers in "${SUBSCRIBERS[@]}"; do
+    for max_delay in "${MAX_DELAY[@]}"; do
+        for publish_rate in "${PUBLISH_RATE[@]}"; do
+            for fanout in "${FANOUT[@]}"; do
+                for message_len in "${MESSAGE_LEN[@]}"; do
+                    poolsize=$(( subscribers / 5 ))
+                    $SYSTEMSLAB submit \
+                        --output-format short \
+                        --name "blabber_v2_S5_C5_nlb_p1_s${subscribers}_pr${publish_rate}_md${max_delay}_fo${fanout}" \
+                        --param "connections=$poolsize" \
+                        --param "publish_rate=$publish_rate" \
+                        --param "max_delay_us=$max_delay" \
+                        --param "fanout=$fanout" \
+                        blabber-s5-c5-nlb.jsonnet
+                    poolsize=$(( subscribers / 25 ))
+                    $SYSTEMSLAB submit \
+                        --output-format short \
+                        --name "blabber_v2_S5_C5_direct_p1_s${subscribers}_pr${publish_rate}_md${max_delay}_fo${fanout}" \
+                        --param "connections=$poolsize" \
+                        --param "publish_rate=$publish_rate" \
+                        --param "max_delay_us=$max_delay" \
+                        --param "fanout=$fanout" \
+                        blabber-s5-c5-direct.jsonnet
+                done
+            done
+        done
+    done
 done
+
