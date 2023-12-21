@@ -21,8 +21,9 @@ but must have at least one.
 * model - the name of the model to use, eg: `Llama-2-7B` note that we do not 
   provide the `-GGUF` suffix
 * quantization - the quantization format eg: `Q4_K_M`
-* powercap - specify a powercap to be applied to all nvidia GPUs in the system.
-  A powercap of 0 results in the default powercap for the card being used.
+* powercap - specify a power limit to be applied to all Nvidia GPUs in the
+  system. A powercap of `0` results in the default power limit for the card
+  being used.
 * repetitions - the number of test repetitions to run.
 * length - the number of tokens to be generated.
 * gpu - a gpu model for the experiments, used as a scheduling constraint and in
@@ -38,6 +39,7 @@ but must have at least one.
 ## Proposed Analysis Goals
 
 * Measure the performance of several GPUs running inference on the same model.
+* See how model size impacts inference speed.
 * Evaluate how different quantization methods impact inference speed.
 * Sweep the powercap of a GPU and see how token/s per watt changes.
 
