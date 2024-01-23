@@ -11,10 +11,10 @@ interval = 1
 # the number of intervals to run the test for
 duration = DURATION_S
 # optionally, we can write some detailed stats to a file during the run
-#json_output = "stats.json"
+json_output = "output.json"
 # run the admin thread with a HTTP listener at the address provided, this allows
 # stats exposition via HTTP
-admin = "127.0.0.1:9091"
+admin = "0.0.0.0:9091"
 # optionally, set an initial seed for the PRNGs used to generate the workload.
 # The default is to intialize from the OS entropy pool.
 #initial_seed = "0"
@@ -32,23 +32,25 @@ log_max_size = 1073741824
 
 [target]
 # kafka broker ip:port
-endpoints = [
-  "KAFKA_SERVER_ADDR:9092"
-]
+endpoints = KAFKA_ENDPOINTS
+
+#[
+#  "KAFKA_SERVER_ADDR:9092"
+#]
 
 [pubsub]
 # TODO the connect timeout in milliseconds
 connect_timeout = 10000
 publish_timeout = 1000
 # the number of threads in the publisher runtime
-publisher_threads = 4
+publisher_threads = RPCPERF_THREADS
 publisher_poolsize = 1
-publisher_concurrency = 20
+publisher_concurrency = RPCPERF_TASKS
 # the number of threads in the subscriber runtime
-subscriber_threads = 4
+subscriber_threads = RPCPERF_THREADS
 # kafka-specific client configurations
 kafka_acks = "1"
-kafka_linger_ms = "1"
+kafka_linger_ms = "KAFKA_LINGER_MS"
 #kafka_batch_size
 #kafka_batch_num_messages
 #kafka_fetch_message_max_bytes
@@ -58,8 +60,7 @@ kafka_linger_ms = "1"
 # the number of threads that will be used to generate requests
 threads = 1
 # the global ratelimit
-ratelimit = RPS
-
+ratelimit = 1000
 # An example set of
 #topics using a single consumer multiple producer.
 [[workload.topics]]
@@ -68,16 +69,16 @@ weight = 1
 # the total number of Kafka clients for subscribers to this set of topics
 subscriber_poolsize = 1
 # the total number of tasks per Kafka client for this set of topics
-subscriber_concurrency = 1
+subscriber_concurrency = RPCPERF_TASKS
 # sets the number of topics
-topics = 1
+topics = TOPICS
 # set the length of the topic names, in bytes
 topic_len = 5
 # set the topic names, if empty or the length and the number do not match topics and topic_len, generate random names
 topic_names = ["hello"]
 # sets the number of partitions in each topic
-partitions = 10
+partitions = PARTITIONS
 # sets the value length, in bytes
-message_len = 512
+message_len = MESSAGE_LEN
 # sets the key length, in bytes
 key_len = 8
