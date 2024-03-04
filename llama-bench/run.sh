@@ -9,19 +9,23 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # The GPU models to be tested. Must match the agent tags
 GPU=(
-    rtx2080ti
+    L4
 )
+
+AUTODOWNLOAD=1
 
 # Specify model names to test here
 MODEL=(
+    Llama-7B
+    Llama-13B
+    Llama-30B
     Llama-2-7B
-    # Llama-2-13B
-    # CodeLlama-7B
-    # CodeLlama-13B
-    # CodeLlama-34B
-    # CodeLlama-7B-Instruct
-    # CodeLlama-13B-Instruct
-    # CodeLlama-34B-Instruct
+    Llama-2-13B
+    OpenLlama-3B
+    OpenLlama-3B-v2
+    OpenLlama-7B
+    OpenLlama-7B-v2
+    OpenLlama-13B
 )
 
 # Specify quantization strategies to test here
@@ -44,17 +48,24 @@ QUANTIZATION=(
 # default power limit. This value is in Watts.
 POWERCAP=(
     0
-    150
-    200
-    250
-    300
+    # 40
+    # 45
+    # 50
+    # 55
+    # 60
+    # 65
+    # 70
+    # 150
+    # 200
+    # 250
+    # 300
+    # 350
+    # 400
 )
 
 # The number of tokens to generate per repetition
 LENGTH=(
-    128
     256
-    512
 )
 
 # The number of repetitions in the test
@@ -75,6 +86,7 @@ for gpu in "${GPU[@]}"; do
                         --param "length=$length" \
                         --param "repetitions=$REPETITIONS" \
                         --param "gpu=$gpu" \
+                        --param "autodownload=$AUTODOWNLOAD" \
                         llama_bench.jsonnet
                 done
             done
