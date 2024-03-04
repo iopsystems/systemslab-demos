@@ -45,7 +45,7 @@ function(model='Llama-2-7B', quantization='Q4_K_M', powercap='0', gpu='rtx2080ti
                             fi
 
                             echo "downloading test file..."
-                            curl -O -L https://raw.githubusercontent.com/klosax/hellaswag_text_data/main/hellaswag_val_full.txt
+                            curl -O -L https://huggingface.co/datasets/ikawrakow/winogrande-eval-for-llama.cpp/raw/main/winogrande-debiased-eval.csv
 
                             if [ %(autodownload)i -eq 1 ]; then
                                 echo "downloading model..."
@@ -60,7 +60,7 @@ function(model='Llama-2-7B', quantization='Q4_K_M', powercap='0', gpu='rtx2080ti
                             fi
 
                             echo "running test..."
-                            /usr/local/bin/llama-perplexity --hellaswag -m /mnt/models/${MODEL}/*%(quantization)s.gguf -f ./hellaswag_val_full.txt -ngl 99 -c %(context)i | tee output.log
+                            /usr/local/bin/llama-perplexity --winogrande -m /mnt/models/${MODEL}/*%(quantization)s.gguf -f ./winogrande-debiased-eval.csv -ngl 99 -c %(context)i | tee output.log
                         ||| % {
                             model: model,
                             quantization: quantization,
