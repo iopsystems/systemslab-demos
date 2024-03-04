@@ -32,11 +32,9 @@ experiment completion.
 
 For local runs of experiments, this is an inefficient approach. Disk space to
 host the weights either on the runner or on an NFS mount is cheap, and bandwidth
-is limited. In that case, it is expected that the weights are kept in
-`/mnt/models` and follow the pattern that can be referenced in the experiment
-spec. The user is expected to pre-download all the model weights they need using
-the `hugggingface-cli` tool. Again, the way to call that tool can be copied
-from the experiment spec.
+is limited. In that case, it is expected that the weights for each model are
+kept in `/mnt/models/${MODEL}`. The user is expected to pre-download all the
+model weights they need using the `hugggingface-cli` tool.
 
 ## Parameters
 
