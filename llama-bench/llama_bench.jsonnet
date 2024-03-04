@@ -59,10 +59,10 @@ function(model='Llama-2-7B', quantization='Q4_K_M', powercap='0', repetitions='6
 
                             echo "running benchmark..."
                             if [ %(autodownload)i -eq 0 ]; then 
-                                PATHPREFIX="/mnt/models";
+                                PATHPREFIX="/mnt/models/${MODEL}";
                             fi
 
-                            /usr/local/bin/llama-bench -m ${PATHPREFIX}/${MODEL}/*${QUANTIZATION}.gguf -p 0 -r %(repetitions)i -n %(length)i -o json > output.json
+                            /usr/local/bin/llama-bench -m ${PATHPREFIX}/*${QUANTIZATION}.gguf -p 0 -r %(repetitions)i -n %(length)i -o json > output.json
                         ||| % {
                             model: model,
                             quantization: quantization,
