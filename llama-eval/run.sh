@@ -10,7 +10,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # The GPU model to be use in the tests. Must match the agent tags
 GPU=l4
 
-# The test to run. (perplexity, hellaswag)
+# The test to run. (perplexity, hellaswag, winogrande)
 TEST=perplexity
 
 # Controls whether the model weights are automatically downloaded for each

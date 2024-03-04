@@ -1,7 +1,7 @@
 # Llama Eval
 
 A set of experiments for evaluating LLM model quality using measures like 
-perplexity, HellaSWAG, and other qualitative benchmarks.
+perplexity, HellaSWAG, and WinoGrande.
 
 ## Prerequisites
 
