@@ -8,13 +8,35 @@ experiments are intended to run on machines with Nvidia GPUs.
 `llama-bench` from `llama.cpp` is built and located in `/usr/local/bin`. The 
 repo and build instructions can be found [here][llama.cpp]
 
+When `AUTODOWNLOAD` is enabled, the `huggingface-cli` tool must be available in
+the `PATH`.
+
 *Note:* be sure you have CUDA toolkit already installed and build with the
 options to enable CUDA acceleration.
 
-One or more models in `GGUF` format is downloaded and located in `/mnt`. You can
-download these models from Hugging Face. The Llama 2 7B model can be found
-[here][Llama-2-7B-GGUF] You do not have to download all of the quantized models
-but must have at least one.
+## Model Downloads
+
+This experiment assumes that we are measuring the performance of GGUF quantized
+weights. You can download these models from Hugging Face. For example, the Llama
+2 7B model can be found [here][Llama-2-7B-GGUF]. At this time we also assume
+that the quantized models are provided by `TheBloke` or for OpenLlama by
+`brayniac`.
+
+There are two ways for model weights to be provided. One is to let the
+experiment automatically download from HuggingFace. This is optimized for cloud
+usage where ingress bandwidth is free and plentiful but disk space on the
+runners has a significant impact on cost to run. For this mode, leave
+`AUTODOWNLOAD` set to `1` in the run script. The experiment will automatically
+fetch the quantized model weights for that run, and they will be deleted on
+experiment completion.
+
+For local runs of experiments, this is an inefficient approach. Disk space to
+host the weights either on the runner or on an NFS mount is cheap, and bandwidth
+is limited. In that case, it is expected that the weights are kept in
+`/mnt/models` and follow the pattern that can be referenced in the experiment
+spec. The user is expected to pre-download all the model weights they need using
+the `hugggingface-cli` tool. Again, the way to call that tool can be copied
+from the experiment spec.
 
 ## Parameters
 
