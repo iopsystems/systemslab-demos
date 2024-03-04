@@ -10,6 +10,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # The GPU model to be use in the tests. Must match the agent tags
 GPU=l4
 
+# The test to run. (perplexity, hellaswag)
+TEST=perplexity
+
 # Controls whether the model weights are automatically downloaded for each
 # experiment.
 AUTODOWNLOAD=1
@@ -97,7 +100,7 @@ for model in "${MODEL[@]}"; do
                 --param "gpu=$GPU" \
                 --param "context=$context" \
                 --param "autodownload=$AUTODOWNLOAD" \
-                llama_perplexity.jsonnet
+                ${TEST}.jsonnet
         done
     done
 done

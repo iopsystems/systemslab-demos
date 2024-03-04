@@ -1,7 +1,7 @@
-# Llama Benchmarks
+# Llama Eval
 
-A set of experiments for evaluating LLM performance using SystemsLab. These
-experiments are intended to run on machines with Nvidia GPUs.
+A set of experiments for evaluating LLM model quality using measures like 
+perplexity, HellaSWAG, and other qualitative benchmarks.
 
 ## Prerequisites
 
