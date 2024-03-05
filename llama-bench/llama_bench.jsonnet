@@ -1,3 +1,5 @@
+local systemslab = import 'systemslab.libsonnet';
+
 function(model='Llama-2-7B', quantization='Q4_K_M', powercap='0', repetitions='60', length='128', gpu='rtx2080ti', autodownload='1')
     local args = {
         model: model,
@@ -69,6 +71,7 @@ function(model='Llama-2-7B', quantization='Q4_K_M', powercap='0', repetitions='6
                             powercap: powercap,
                             repetitions: repetitions,
                             length: length,
+                            autodownload: autodownload,
                         },
                         background=false
                     ),
